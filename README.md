@@ -1,54 +1,68 @@
-# Smartmi P1 Extras
+# Smartmi P1 Local
 
-Lokale Zusatzfunktionen für den **Smartmi Air Purifier P1** neben einer bestehenden
-HomeKit-Device-Anbindung in Home Assistant. Version **0.1.1**. Lokales Lesen am realen
-P1 (Firmware 1.0.7) bestätigt. Schreiben und Betrieb ohne Internet sind noch nicht
-validiert. Getestet mit Home Assistant **2026.10.4 / Python 3.14**.
+Eigenständige lokale Steuerung des **Smartmi Air Purifier P1** in Home Assistant.
+Version **0.2.0**. Eine HomeKit-Integration wird nicht benötigt.
 
-Installation über HACS als benutzerdefiniertes Repository:
-**https://github.com/holzauto/smartmi-p1-extras** (Typ: Integration).
-Schreibbefehle und Betrieb ohne Internet sind noch nicht am realen Gerät getestet.
-Diese erste Version sollte deshalb zunächst mit beobachtbarem Gerät geprüft werden.
+Ein fabrikneuer P1 wird einmalig in **Tuya Smart / Smart Life** aktiviert und ins
+WLAN aufgenommen. Anschließend werden Geräte-ID und Local Key in dieser Integration
+hinterlegt. Der Steuerungsweg im Betrieb ist **Home Assistant → P1 im lokalen Netzwerk**.
+Die Smart-Life-App muss dabei nicht geöffnet sein.
+
+Repository: https://github.com/holzauto/smartmi-p1-extras
+
+Der Repository-Name und die interne Domain `smartmi_p1_extras` bleiben für Updates
+bestehender Installationen erhalten. Der Anzeigename lautet jetzt **Smartmi P1 Local**.
 
 ## Funktionen
 
-| Zusatzfunktion | Tuya-Datenpunkt | Verhalten |
-|---|---:|---|
-| Betriebsmodus | 3 | Automatik, Nachtmodus (`sleep`), Maximum, Manuell |
-| PM10 | 102 | Konzentration in µg/m³ laut veröffentlichter P1-Gerätedefinition |
-| Ausschalttimer | 103 | Aus, 1, 2, 4 oder 8 Stunden |
-| Kindersicherung | 7 | Implementiert; auf dem getesteten Gerät lokal nicht gemeldet |
-| Signaltöne | 101 | Ein / Aus |
-| Displayhelligkeit | 110 | Hell, gedimmt, aus oder automatisch |
-| Filterbetriebsstunden | 105 | Gemeldete Betriebsstunden |
+| Entität | Funktionen / Messwerte | Tuya-Datenpunkte |
+|---|---|---|
+| Luftreiniger (`fan`) | Ein/Aus, manuelle Lüfterleistung 1–100 %, Automatik, Nachtmodus, Maximum, Manuell | 1, 3, 109 |
+| PM2.5 | Konzentration in µg/m³ | 2 |
+| PM10 | Konzentration in µg/m³ laut veröffentlichter Gerätedefinition | 102 |
+| Filterrestlebensdauer | Prozent verbleibend | 104 |
+| Filterbetriebsstunden | Gemeldete Betriebsstunden | 105 |
+| Betriebsmodus (`select`) | Zusätzliche Modusauswahl, synchron mit der Lüfterentität | 3 |
+| Ausschalttimer | Aus, 1, 2, 4 oder 8 Stunden | 103 |
+| Signaltöne | Ein/Aus | 101 |
+| Displayhelligkeit | Hell, gedimmt, aus oder automatisch | 110 |
+| Kindersicherung | Implementiert, am getesteten P1 lokal nicht gemeldet | 7 |
 
-Es werden sieben neue Entitäten angelegt. Fehlende Datenpunkte melden
-„nicht verfügbar“. Am getesteten P1 sind sechs Zusatzfunktionen lesbar; DP7 fehlt.
-Die Abfrage verwendet Protokoll 3.3 mit expliziten Datenpunkten (`device22`), weil
-die automatische Erkennung sonst nur Ein/Aus zurückliefert. Die Werte in einer
-Statusabfrage sind `null`; diese Abfrage schreibt keine Geräteeinstellungen.
-Nachtmodus wählt den Geräte-Modus `sleep`; das Gerät wird dabei nicht automatisch
-eingeschaltet und es werden keine angenommenen Helligkeits- oder Tonwerte gesetzt.
+Es entstehen zehn Entitäten an einem Gerät. Fehlende Datenpunkte werden als
+„nicht verfügbar“ gemeldet. Die Integration unterstützt den P1; sie ist keine
+universelle Integration für beliebige Tuya-Luftreiniger.
 
-Die vorhandenen HomeKit-Entitäten, Geräte, Namen und Automationen werden nicht verändert.
-Die Erweiterung erzeugt keine zweite Lüfterentität. Bei der Einrichtung lässt sich
-das vorhandene Smartmi-HomeKit-Gerät auswählen, um dessen Raum als Vorschlag zu
-übernehmen. Home Assistant 2026.10 führt die Zusatzfunktionen als eigenes Gerät
-„Smartmi P1 Extras“; es werden keine fremden HomeKit-Gerätekennungen übernommen.
+Die Prozentanzeige beschreibt die **eingestellte manuelle Lüfterleistung**, keine
+Drehzahlmessung. Im Automatik-, Nacht- und Maximum-Modus wird deshalb kein
+veralteter manueller Prozentwert als aktuelle Leistung angezeigt. Bei ausgeschaltetem
+Gerät wird 0 % angezeigt. Eine positive Leistung schaltet auf Manuell und schaltet
+das Gerät ein; 0 % schaltet es aus.
 
-Ein bereits über HomeKit eingebundener **VOCOlinc VAP1** wird weiterhin direkt über
-HomeKit bedient. Diese erste Version implementiert keine zusätzlichen VAP1-Funktionen.
-Die Beispielkarte zeigt beide bestehenden Lüfter zusammen mit den P1-Extras.
+`fan.turn_on` kann einen `preset_mode` annehmen: `auto`, `sleep`, `strong` oder `manual`.
+Die Dienste `fan.set_preset_mode` und `select.select_option` ändern den Modus, ohne
+selbst einen Ein/Aus-Befehl zu senden. Eine manuelle Prozentvorgabe zusammen mit
+einem anderen Betriebsmodus wird vor dem ersten Schreibbefehl abgelehnt.
 
-## Einmalig den Local Key auslesen
+## Einmalige Einrichtung des P1
 
-Nur diese Beschaffung benötigt eine Verbindung zur Tuya-Cloud. Das separate
-Hilfsskript verwendet das SDK und QR-Anmeldeverfahren der offiziellen HA-Tuya-Integration.
-Es ist kein Tuya-Entwicklerkonto erforderlich. Die Verfügbarkeit des Schlüssels hängt
-von der aktuellen Tuya-API und den Berechtigungen deines Kontos ab. Das Auslesen
-und die anschließende lokale Authentifizierung wurden an einem P1 bestätigt.
+1. Ein neues Gerät über Tuya Smart / Smart Life ins WLAN aufnehmen und aktivieren.
+2. Geräte-ID und **Local Key** beschaffen (siehe Hilfsskript unten).
+3. Die lokale WLAN-IP im Router ermitteln; eine DHCP-Reservierung ist sinnvoll.
+4. Smart Life vollständig schließen und die lokale Verbindung prüfen.
+5. Die HACS-Integration installieren und mit diesen Daten einrichten.
 
-Für das Hilfsskript Python 3.14 installieren und im eigenen Terminal ausführen:
+Die ursprüngliche Aktivierung und die Schlüsselbeschaffung benötigen Tuya-Zugang.
+Die installierte Integration startet weder eine Cloud-Anmeldung noch das
+Schlüssel-Hilfsskript. Es ist kein HomeKit-Pairing und kein Apple-Konto erforderlich.
+
+## Local Key auslesen
+
+Das separate Hilfsskript verwendet das Tuya-SDK und das QR-Anmeldeverfahren der
+HA-Tuya-Integration. Ein Tuya-Entwicklerkonto wird dafür nicht benötigt. Verfügbarkeit
+und Berechtigungen hängen von der aktuellen Tuya-API ab. Das Verfahren wurde an
+einem P1 erfolgreich verwendet.
+
+Auf einem Rechner mit Python 3.14:
 
 ```sh
 git clone https://github.com/holzauto/smartmi-p1-extras.git
@@ -58,97 +72,121 @@ python3.14 -m venv .venv
 .venv/bin/python scripts/get_local_key.py --host DEINE_LOKALE_IP
 ```
 
-1. Smart Life → Profil/Ich → Einstellungen → Konto und Sicherheit → Benutzercode.
-   Je nach App-Version können die Bezeichnungen abweichen.
-2. Den Benutzercode am verdeckten Terminalprompt eingeben. Er wird direkt an Tuya
-   für die Anmeldung übermittelt. Kein Passwort oder Schlüssel gehört in den Chat.
-3. Den im Terminal dargestellten QR-Code mit Smart Life scannen und die Anmeldung
-   auf dem iPhone bestätigen. Danach im Terminal Enter drücken und den P1 auswählen.
-4. Der Schlüssel wird ausschließlich nach `.secrets/p1.local.json` geschrieben
-   (Dateirechte `0600`, im Git-Ignore). Cloud-Tokens werden nicht gespeichert.
-   Die Datei nicht hochladen oder veröffentlichen; auch HA-Backups enthalten später
-   den in der Integration hinterlegten Local Key.
-5. Smart Life vollständig schließen und ausschließlich lesend testen:
+Den Benutzercode aus Smart Life → Profil/Ich → Einstellungen → Konto und Sicherheit
+am verdeckten Terminalprompt eingeben. Den QR-Code im Terminal mit Smart Life
+scannen, die Anmeldung auf dem iPhone bestätigen und danach im Terminal Enter drücken.
+Bei mehreren Geräten den P1 auswählen.
+
+Der Local Key wird nach `.secrets/p1.local.json` geschrieben (Dateirechte `0600`,
+im Git-Ignore) und nicht im Terminal ausgegeben. Cloud-Tokens werden nicht gespeichert.
+Der Benutzercode dient der einmaligen Cloud-Anmeldung; für die spätere LAN-Verbindung
+wird der Local Key verwendet. Schlüsseldateien nicht veröffentlichen oder hochladen.
+
+Für einen ausschließlich lesenden Verbindungstest zusätzlich die HA-Abhängigkeiten
+installieren und anschließend ausführen:
 
 ```sh
+.venv/bin/python -m pip install -r requirements-dev.txt
 .venv/bin/python scripts/probe_p1.py
 ```
 
 Der Lesetest probiert die unterstützten Protokollversionen 3.3/3.4/3.5, meldet die
-erfolgreiche Version und die verfügbaren Zusatzfunktionen. Er ändert keine Einstellung
-und gibt weder Local Key noch Gerätezustände aus. Er kann bis zu etwa einer Minute dauern.
+erfolgreiche Version und die verfügbaren Funktionen. Er ändert keine Einstellung
+und gibt keinen Local Key aus. Am getesteten P1 funktioniert **Protokoll 3.3** mit
+expliziten Datenpunktabfragen (`device22`).
 
-Das Schlüssel-Hilfsskript benötigt nur `requirements-key.txt`. Für `probe_p1.py`
-zusätzlich `.venv/bin/python -m pip install -r requirements-dev.txt` ausführen;
-der Lesetest benötigt die Integrationsdateien und deren HA-Abhängigkeiten.
+## Installation mit HACS
 
-## Mit HACS installieren
-
-1. In HACS das Menü **Benutzerdefinierte Repositories** öffnen.
+1. In HACS → Menü → **Benutzerdefinierte Repositories** öffnen.
 2. `https://github.com/holzauto/smartmi-p1-extras` hinzufügen, Typ **Integration**.
-3. **Smartmi P1 Extras** herunterladen und Home Assistant neu starten.
-4. Einstellungen → Geräte & Dienste → Integration hinzufügen → **Smartmi P1 Extras**.
-5. Lokale IP-Adresse, Tuya-Geräte-ID, Local Key und bestätigte Protokollversion
-   eingeben. Am getesteten P1 ist dies **3.3**. Optional das vorhandene
-   Smartmi-HomeKit-Gerät auswählen, um dessen Raum vorzuschlagen.
+3. **Smartmi P1 Local** herunterladen und Home Assistant neu starten.
+4. Einstellungen → Geräte & Dienste → Integration hinzufügen → **Smartmi P1 Local**.
+5. Lokale IP-Adresse, Tuya-Geräte-ID, Local Key und Protokollversion eingeben.
 
-Der Einrichtungsdialog prüft die lokale Verbindung vor dem Speichern.
+Die Einrichtung prüft die lokale Verbindung sowie die grundlegenden P1-Datenpunkte
+vor dem Speichern. Eine Einrichtung verändert keine Geräteeinstellungen.
+Die Integration ist als benutzerdefinierte HACS-Quelle verfügbar und ist nicht im
+HACS-Standardkatalog enthalten.
 
-## Ohne HACS installieren
+## Update von 0.1.x
 
-1. Den Ordner `custom_components/smartmi_p1_extras` aus diesem Projekt bzw. ZIP nach
-   `/config/custom_components/smartmi_p1_extras` auf dem HA-System kopieren.
-   Die Entwicklung auf dem Mac allein installiert nichts auf HA.
-2. Home Assistant neu starten.
-3. Einstellungen → Geräte & Dienste → Integration hinzufügen → **Smartmi P1 Extras**.
-4. Lokale IP, Tuya-Geräte-ID, Local Key und im Lesetest bestätigte Protokollversion
-   eingeben. Optional das vorhandene Smartmi-HomeKit-Gerät auswählen.
-5. Der Einrichtungsdialog führt vor dem Speichern einen lokalen Lesetest durch.
+- In HACS aktualisieren und Home Assistant neu starten. Die gespeicherten IP-,
+  Geräte-ID-, Schlüssel- und Protokolldaten bleiben erhalten.
+- Der Konfigurationseintrag wird automatisch auf Version 2 migriert. Die frühere
+  optionale HomeKit-Zuordnung entfällt.
+- Die sieben bisherigen Zusatzentitäten behalten ihre Unique IDs und bereits
+  vergebenen Entitäts-IDs. Drei Entitäten kommen hinzu: Lüfter, PM2.5 und Filterrestlebensdauer.
+- Vorhandene HomeKit-Geräte und deren Automationen werden nicht automatisch verändert.
+  Bereits auf HomeKit-Entitäten verweisende Dashboards und Automationen müssen bei
+  einem gewünschten Wechsel auf die neuen lokalen Entitäten umgestellt werden.
+- Die vollständige Bedienung zunächst an der neuen lokalen Lüfterentität prüfen.
+  Danach kann die bisherige P1-Anbindung über **HomeKit Device** entfallen.
+  Die HomeKit-Integration eines anderen Geräts, etwa VOCOlinc VAP1, ist davon unabhängig.
+- Wer erstmals installiert, benötigt keine vorherige Version und keine HomeKit-Einrichtung.
 
-Geräte-ID und Schlüssel gehören nicht in öffentliche Projektdateien.
-Der Schlüssel ist in der HA-Konfiguration
-gespeichert; das Passwortfeld schützt die Anzeige, verschlüsselt aber nicht die
-Konfigurationsdateien. IP oder Local Key später über **Neu konfigurieren** ändern.
-Ein erneutes Pairing in Smart Life kann den Local Key ändern.
+## Manuelle Installation und Entfernen
 
-Das Repository ist als benutzerdefinierte HACS-Quelle vorgesehen. Es ist nicht im
-HACS-Standardkatalog enthalten. Für einen eigenen Fork kann
-`scripts/prepare_hacs.py OWNER/REPOSITORY --maintainer GITHUB_USERNAME` die URLs
-und Maintainer-Angabe im Manifest anpassen.
+Alternativ den Ordner `custom_components/smartmi_p1_extras` nach
+`/config/custom_components/smartmi_p1_extras` auf dem HA-System kopieren, HA neu
+starten und **Smartmi P1 Local** über Geräte & Dienste hinzufügen.
 
-## Betrieb und Prüfung am Gerät
+Zum Entfernen den Integrationseintrag löschen. Für die vollständige Deinstallation
+danach das Repository in HACS entfernen bzw. den Komponentenordner entfernen und
+HA neu starten. Eigenständig vorhandene HomeKit-Integrationen bleiben bestehen.
 
-- Nur LAN-Zugriffe auf TCP 6668, alle 30 Sekunden, kurze getrennte Verbindungen.
-  Synchrone Netzwerkzugriffe laufen außerhalb des HA-Ereignisloops und werden serialisiert.
-- Nach einem Schreibbefehl wird zurückgelesen. Nicht bestätigte Änderungen werden
-  als Fehler gemeldet, ohne einen erfolgreichen Gerätezustand vorzutäuschen.
-- Die Integration startet keine Tuya-Cloud-Anmeldung und speichert keine Cloud-Tokens.
-  Das optionale Schlüssel-Hilfsskript wird nicht mit der HA-Integration installiert.
-- Geschlossenes Smart Life und nur ein lokaler Tuya-Client pro Gerät vermeiden
-  Verbindungskonflikte. HomeKit verwendet ein eigenes Protokoll; der Parallelbetrieb
-  mit lokalem Tuya muss trotzdem am konkreten Gerät geprüft werden.
-- Vollständig cloudfreier Gerätebetrieb ist erst nach einem Offline-Test bestätigt:
-  Internetzugriff des P1 am Router sperren, lokale HA-Erreichbarkeit erlauben,
-  Neustart testen und alle gewünschten Funktionen durchgehen. Manche Tuya-Firmwares
-  reagieren empfindlich auf die konkrete Internet-/DNS-Sperre. Nicht pauschal DNS-Regeln ändern.
-- Gerätefunktionen einzeln prüfen: Nachtmodus, PM10 im Vergleich zur App, Timer,
-  Ton und Display. Vorherige Einstellungen notieren und wiederherstellen.
-- Entfernen der Integration entlädt nur die Extras. Für die vollständige Deinstallation
-  anschließend den Komponentenordner entfernen und HA neu starten.
+## Lokaler Betrieb und Grenzen
 
-## Entwicklung und Quellen
+- Der Gerätezustand wird alle 30 Sekunden über TCP 6668 im LAN gelesen.
+  Befehle und Statusabfragen sind serialisiert. Netzwerkzugriffe laufen außerhalb
+  des HA-Ereignisloops, mit kurzen getrennten Verbindungen.
+- Änderungen werden anschließend vom Gerät zurückgelesen. Nicht bestätigte
+  Befehle werden als Fehler gemeldet; es wird kein Erfolg vorgetäuscht.
+  Mehrteilige Lüfterbefehle werden vollständig validiert, bevor etwas gesendet wird.
+  Bei einem Fehler kann ein bereits gesendeter Teilschritt angewendet sein;
+  die nächste erfolgreiche Abfrage stellt den tatsächlich gemeldeten Zustand dar.
+- Nur einen lokalen Tuya-Client pro Gerät verwenden und Smart Life beim lokalen
+  Betrieb schließen. Nicht gleichzeitig Tuya Local oder LocalTuya auf denselben P1 richten.
+- Die Integration verwendet **TinyTuya**, eine lokal laufende Open-Source-Bibliothek.
+  Für die LAN-Steuerung wird kein externer Dienst und kein weiteres Konto benötigt.
+  GitHub/HACS dienen zur Installation und für Updates.
+- Die Integration unterbindet nicht selbst die Cloud-Verbindungen der Gerätefirmware.
+  Für dauerhaft abgeschotteten Betrieb muss der Internetzugang des P1 am Router
+  gesperrt und die Erreichbarkeit aus HA weiter erlaubt werden. Ein vollständiger
+  Offline- und Neustarttest steht noch aus. DNS-Regeln gerätespezifisch prüfen.
+- Geräte-ID und Schlüssel werden in der HA-Konfiguration gespeichert. Das
+  Passwortfeld schützt die Anzeige, verschlüsselt aber keine Konfigurationsdateien.
+  HA-Backups können den Schlüssel enthalten. Änderungen der IP oder des Local Key
+  sind über **Neu konfigurieren** möglich. Erneutes Pairing kann den Local Key ändern.
+- Die Kindersicherung ist bei einem P1 mit Firmware 1.0.7 lokal nicht gemeldet worden.
+  Die entsprechende Entität bleibt dort nicht verfügbar. Andere Firmwarestände
+  können abweichen; weitere Modelle brauchen eine eigene geprüfte Datenpunktzuordnung.
+
+## Entwicklung
 
 ```sh
+.venv/bin/python -m pip install -r requirements-dev.txt -r requirements-key.txt
 .venv/bin/ruff check custom_components tests scripts
 .venv/bin/pytest -q
 ```
 
-Die Tests verwenden echte HA-Config-Flows, Entitäten und Dienste mit simuliertem
-Gerätetransport. Sie ersetzen weder den P1-Test noch den Offline-Test.
+Getestet mit Home Assistant **2026.10.4 / Python 3.14**. Die automatisierten Tests
+verwenden echte HA-Einrichtungsdialoge, Entitäten und Dienste mit simuliertem
+LAN-Transport. Sie prüfen auch die eigenständige Einrichtung ohne HomeKit und
+Migration, Kennungserhalt, Fehlerbehandlung und Bestätigung der Schreibbefehle.
+Am P1 mit Firmware 1.0.7 wurden lokale Lesezugriffe sowie Ein/Aus, Nachtmodus,
+Automatik und eine manuelle Leistungsänderung getestet. Ton, Display und Timer
+wurden durch Zurückschreiben ihrer aktuellen Werte bestätigt; anschließend wurde
+der vorherige Gerätezustand wiederhergestellt. Die weiteren einzelnen Einstellwerte
+und der vollständige Betrieb bei gesperrtem Internetzugang und nach
+Stromunterbrechung sind noch zu prüfen.
+
+Für einen eigenen Fork kann `scripts/prepare_hacs.py OWNER/REPOSITORY --maintainer
+GITHUB_USERNAME` die Repository-Verweise im Manifest anpassen.
+
+## Quellen
 
 - [Veröffentlichte P1-Datenpunktdefinition](https://github.com/make-all/tuya-local/blob/main/custom_components/tuya_local/devices/smartmi_air_purifier_p1.yaml)
 - [TinyTuya LAN-Bibliothek](https://github.com/jasonacox/tinytuya)
-- [HomeKit Device](https://www.home-assistant.io/integrations/homekit_controller/)
 - [HACS-Anforderungen](https://www.hacs.xyz/docs/publish/integration/)
 
-Eigenständige Implementierung; keine Zugehörigkeit zu Smartmi, Tuya oder VOCOlinc.
+Eigenständige Implementierung; keine Zugehörigkeit zu Smartmi oder Tuya.
