@@ -79,7 +79,7 @@ async def test_entities_grouping_actions_diagnostics_and_unload(
         await hass.async_block_till_done()
         registry = er.async_get(hass)
         entities = er.async_entries_for_config_entry(registry, entry.entry_id)
-        assert len(entities) == 7
+        assert len(entities) == 10
         assert all(entity.device_id != existing.id for entity in entities)
         assert len({entity.device_id for entity in entities}) == 1
         mode = registry.async_get_entity_id("select", DOMAIN, "test_p1_mode")

@@ -24,11 +24,14 @@ def connection_data():
 def device_state():
     return {
         "1": True,
+        "2": 5,
         "3": "auto",
         "7": False,
         "101": True,
         "102": 12,
         "103": "0_hour",
+        "104": 59,
         "105": 534,
+        "109": 42,
         "110": "BRIGHTNESS_LOW",
     }
