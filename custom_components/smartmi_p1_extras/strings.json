@@ -1,0 +1,91 @@
+{
+  "title": "Smartmi P1 Extras",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Smartmi P1 Extras",
+        "description": "Connect directly to the P1 over your LAN. The local key is stored only in Home Assistant. Optionally select the existing Smartmi HomeKit device to suggest its area. Extras appear as a separate device.",
+        "data": {
+          "host": "Local IP address or hostname",
+          "device_id": "Tuya device ID",
+          "local_key": "Tuya local key",
+          "protocol_version": "Tuya protocol version",
+          "homekit_device": "Existing Smartmi HomeKit device (optional)"
+        }
+      },
+      "reconfigure": {
+        "title": "Smartmi P1 Extras",
+        "description": "Connect directly to the P1 over your LAN. The local key is stored only in Home Assistant. Optionally select the existing Smartmi HomeKit device to suggest its area. Extras appear as a separate device.",
+        "data": {
+          "host": "Local IP address or hostname",
+          "device_id": "Tuya device ID",
+          "local_key": "Tuya local key",
+          "protocol_version": "Tuya protocol version",
+          "homekit_device": "Existing Smartmi HomeKit device (optional)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No valid local response. Check the IP, local key and protocol version; close Smart Life and other local Tuya clients.",
+      "invalid_key": "The local key must be exactly 16 UTF-8 bytes.",
+      "invalid_device": "Select the existing Smartmi device from HomeKit Device.",
+      "unsupported_device": "The device does not report any known supplemental P1 datapoints.",
+      "missing_connection_data": "Enter a host and device ID."
+    },
+    "abort": {
+      "already_configured": "Already configured",
+      "reconfigure_successful": "Configuration updated",
+      "unique_id_mismatch": "Device ID must not change"
+    }
+  },
+  "entity": {
+    "select": {
+      "mode": {
+        "name": "Mode (including sleep)",
+        "state": {
+          "auto": "Automatic",
+          "sleep": "Sleep",
+          "strong": "Maximum",
+          "manual": "Manual"
+        }
+      },
+      "timer": {
+        "name": "Off timer",
+        "state": {
+          "0_hour": "Disabled",
+          "1_hour": "1 hour",
+          "2_hour": "2 hours",
+          "4_hour": "4 hours",
+          "8_hour": "8 hours"
+        }
+      },
+      "display": {
+        "name": "Display brightness",
+        "state": {
+          "BRIGHTNESS_HIGH": "High",
+          "BRIGHTNESS_LOW": "Low",
+          "BRIGHTNESS_OFF": "Off",
+          "BRIGHTNESS_AUTO": "Automatic"
+        }
+      }
+    },
+    "sensor": {
+      "pm10": {
+        "name": "PM10"
+      },
+      "filter_hours": {
+        "name": "Filter operating hours"
+      }
+    },
+    "switch": {
+      "sound": {
+        "name": "Button sounds"
+      }
+    },
+    "lock": {
+      "child_lock": {
+        "name": "Child lock"
+      }
+    }
+  }
+}

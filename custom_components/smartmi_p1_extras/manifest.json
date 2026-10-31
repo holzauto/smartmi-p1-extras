@@ -1,0 +1,16 @@
+{
+  "domain": "smartmi_p1_extras",
+  "name": "Smartmi P1 Extras",
+  "version": "0.1.1",
+  "codeowners": [
+    "@holzauto"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/holzauto/smartmi-p1-extras#readme",
+  "iot_class": "local_polling",
+  "integration_type": "device",
+  "requirements": [
+    "tinytuya==1.20.0"
+  ],
+  "issue_tracker": "https://github.com/holzauto/smartmi-p1-extras/issues"
+}
