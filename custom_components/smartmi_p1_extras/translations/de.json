@@ -1,0 +1,91 @@
+{
+  "title": "Smartmi P1 Extras",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Smartmi P1 Extras",
+        "description": "Direkte Verbindung zum P1 im lokalen Netzwerk. Der Local Key wird nur in Home Assistant gespeichert. Optional das vorhandene Smartmi-HomeKit-Gerät wählen, um dessen Raum vorzuschlagen. Die Extras erscheinen als eigenes Gerät.",
+        "data": {
+          "host": "Lokale IP-Adresse oder Hostname",
+          "device_id": "Tuya-Geräte-ID",
+          "local_key": "Tuya Local Key",
+          "protocol_version": "Tuya-Protokollversion",
+          "homekit_device": "Vorhandenes Smartmi-HomeKit-Gerät (optional)"
+        }
+      },
+      "reconfigure": {
+        "title": "Smartmi P1 Extras",
+        "description": "Direkte Verbindung zum P1 im lokalen Netzwerk. Der Local Key wird nur in Home Assistant gespeichert. Optional das vorhandene Smartmi-HomeKit-Gerät wählen, um dessen Raum vorzuschlagen. Die Extras erscheinen als eigenes Gerät.",
+        "data": {
+          "host": "Lokale IP-Adresse oder Hostname",
+          "device_id": "Tuya-Geräte-ID",
+          "local_key": "Tuya Local Key",
+          "protocol_version": "Tuya-Protokollversion",
+          "homekit_device": "Vorhandenes Smartmi-HomeKit-Gerät (optional)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Keine gültige lokale Antwort. IP-Adresse, Local Key und Protokollversion prüfen; Smart Life und andere lokale Tuya-Clients schließen.",
+      "invalid_key": "Der Local Key muss genau 16 UTF-8-Bytes lang sein.",
+      "invalid_device": "Bitte das vorhandene Smartmi-Gerät aus HomeKit Device auswählen.",
+      "unsupported_device": "Das Gerät meldet keine bekannten P1-Zusatzdatenpunkte.",
+      "missing_connection_data": "Hostname und Geräte-ID eingeben."
+    },
+    "abort": {
+      "already_configured": "Bereits eingerichtet",
+      "reconfigure_successful": "Konfiguration aktualisiert",
+      "unique_id_mismatch": "Die Geräte-ID darf nicht geändert werden"
+    }
+  },
+  "entity": {
+    "select": {
+      "mode": {
+        "name": "Betriebsmodus mit Nachtmodus",
+        "state": {
+          "auto": "Automatik",
+          "sleep": "Nachtmodus",
+          "strong": "Maximum",
+          "manual": "Manuell"
+        }
+      },
+      "timer": {
+        "name": "Ausschalttimer",
+        "state": {
+          "0_hour": "Deaktiviert",
+          "1_hour": "1 Stunde",
+          "2_hour": "2 Stunden",
+          "4_hour": "4 Stunden",
+          "8_hour": "8 Stunden"
+        }
+      },
+      "display": {
+        "name": "Displayhelligkeit",
+        "state": {
+          "BRIGHTNESS_HIGH": "Hell",
+          "BRIGHTNESS_LOW": "Gedimmt",
+          "BRIGHTNESS_OFF": "Aus",
+          "BRIGHTNESS_AUTO": "Automatisch"
+        }
+      }
+    },
+    "sensor": {
+      "pm10": {
+        "name": "PM10"
+      },
+      "filter_hours": {
+        "name": "Filterbetriebsstunden"
+      }
+    },
+    "switch": {
+      "sound": {
+        "name": "Signaltöne"
+      }
+    },
+    "lock": {
+      "child_lock": {
+        "name": "Kindersicherung"
+      }
+    }
+  }
+}
