@@ -1,14 +1,26 @@
-"""Smartmi P1 Extras: local supplemental entities alongside HomeKit Device."""
+"""Standalone local control of the Smartmi P1, with no HomeKit dependency."""
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant
 
 from .client import P1Client
-from .const import CONF_DEVICE_ID, CONF_LOCAL_KEY, CONF_PROTOCOL
+from .const import CONF_DEVICE_ID, CONF_LOCAL_KEY, CONF_PROTOCOL, LEGACY_HOMEKIT_DEVICE, NAME
 from .coordinator import P1Coordinator
 
-PLATFORMS = [Platform.SELECT, Platform.SENSOR, Platform.SWITCH, Platform.LOCK]
+PLATFORMS = [Platform.FAN, Platform.SELECT, Platform.SENSOR, Platform.SWITCH, Platform.LOCK]
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Retain the domain, device identity and all pre-existing entity unique IDs."""
+    if entry.version > 2:
+        return False
+    if entry.version == 1:
+        data = dict(entry.data)
+        data.pop(LEGACY_HOMEKIT_DEVICE, None)
+        title = NAME if entry.title == "Smartmi P1 Extras" else entry.title
+        hass.config_entries.async_update_entry(entry, data=data, version=2, title=title)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -27,5 +39,5 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload only supplemental entities."""
+    """Unload this integration's local entities."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

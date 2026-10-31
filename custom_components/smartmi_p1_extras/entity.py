@@ -1,11 +1,9 @@
-"""Shared supplemental entity behavior."""
+"""Shared local entity behavior."""
 
-from homeassistant.helpers import area_registry as ar
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_DEVICE_ID, CONF_HOMEKIT_DEVICE, DOMAIN
+from .const import CONF_DEVICE_ID, DOMAIN
 
 
 class P1Entity(CoordinatorEntity):
@@ -18,20 +16,12 @@ class P1Entity(CoordinatorEntity):
         self.dp = dp
         self._attr_unique_id = f"{entry.data[CONF_DEVICE_ID]}_{key}"
         self._attr_translation_key = key
-        registry = dr.async_get(coordinator.hass)
-        existing = registry.async_get(entry.data.get(CONF_HOMEKIT_DEVICE, ""))
-        # HA 2026.10 separates device ownership by integration. Register our own
-        # device rather than copying HomeKit identifiers or changing its registry entry.
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.data[CONF_DEVICE_ID])},
-            name="Smartmi P1 Extras",
+            name="Smartmi P1",
             manufacturer="Smartmi",
             model="Air Purifier P1",
         )
-        if existing and existing.area_id:
-            area = ar.async_get(coordinator.hass).async_get_area(existing.area_id)
-            if area:
-                self._attr_device_info["suggested_area"] = area.name
 
     @property
     def available(self) -> bool:

@@ -1,7 +1,7 @@
 {
   "domain": "smartmi_p1_extras",
-  "name": "Smartmi P1 Extras",
-  "version": "0.1.1",
+  "name": "Smartmi P1 Local",
+  "version": "0.2.0",
   "codeowners": [
     "@holzauto"
   ],

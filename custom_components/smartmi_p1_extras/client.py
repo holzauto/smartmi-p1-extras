@@ -12,7 +12,9 @@ from .const import (
     DP_CHILD_LOCK,
     DP_DISPLAY,
     DP_MODE,
+    DP_POWER,
     DP_SOUND,
+    DP_SPEED,
     DP_TIMER,
     MODES,
     P1_QUERY_DPS,
@@ -38,11 +40,13 @@ def extract_dps(response: Any) -> dict[str, Any]:
 
 
 def validate_write(dp: str, value: Any) -> None:
-    """Restrict writes to the documented supplemental P1 controls."""
+    """Restrict writes to documented P1 controls, never sensor/filter counters."""
     choices = {DP_MODE: MODES, DP_TIMER: TIMERS, DP_DISPLAY: DISPLAY_MODES}
     if dp in choices and isinstance(value, str) and value in choices[dp]:
         return
-    if dp in (DP_CHILD_LOCK, DP_SOUND) and type(value) is bool:
+    if dp in (DP_POWER, DP_CHILD_LOCK, DP_SOUND) and type(value) is bool:
+        return
+    if dp == DP_SPEED and type(value) is int and 1 <= value <= 100:
         return
     raise ValueError("Unsupported P1 datapoint or value")
 
@@ -78,15 +82,27 @@ class P1Client:
 
     def write(self, dp: str, value: Any) -> dict[str, Any]:
         """Write one setting, then return the state actually reported by the device."""
-        validate_write(dp, value)
+        return self.write_many({dp: value})
+
+    def write_many(self, changes: dict[str, Any]) -> dict[str, Any]:
+        """Apply an ordered command and confirm every field in one readback."""
+        if not changes:
+            raise ValueError("No P1 settings supplied")
+        # Validate the complete command before sending its first packet.
+        for dp, value in changes.items():
+            validate_write(dp, value)
         with self._lock:
             try:
-                result = self._device.set_value(dp, value)
-                if isinstance(result, dict) and ("Error" in result or "Err" in result):
-                    raise CannotConnect("Local device rejected the setting")
+                for dp, value in changes.items():
+                    result = self._device.set_value(dp, value)
+                    if isinstance(result, dict) and ("Error" in result or "Err" in result):
+                        raise CannotConnect("Local device rejected the setting")
                 # Empty acknowledgements are normal. Read back rather than assuming success.
                 dps = extract_dps(self._device.status())
-                if dp not in dps or type(dps[dp]) is not type(value) or dps[dp] != value:
+                if any(
+                    dp not in dps or type(dps[dp]) is not type(value) or dps[dp] != value
+                    for dp, value in changes.items()
+                ):
                     raise CannotConnect("Device did not confirm the setting; refresh and retry")
                 return dps
             except CannotConnect:

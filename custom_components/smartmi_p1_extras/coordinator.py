@@ -48,3 +48,13 @@ class P1Coordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self.async_set_update_error(UpdateFailed(str(err)))
                 raise HomeAssistantError(str(err)) from None
             self.async_set_updated_data(data)
+
+    async def async_write_many(self, changes: dict[str, Any]) -> None:
+        """Keep a complete fan command serialized with polls and other entities."""
+        async with self.io_lock:
+            try:
+                data = await self.hass.async_add_executor_job(self.client.write_many, changes)
+            except CannotConnect as err:
+                self.async_set_update_error(UpdateFailed(str(err)))
+                raise HomeAssistantError(str(err)) from None
+            self.async_set_updated_data(data)
