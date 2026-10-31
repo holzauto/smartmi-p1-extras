@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+dist/
+devices.json
+snapshot.json
+tinytuya.json
+tuya-raw.json
+*.local.json
+*.local.yaml
+.secrets/
