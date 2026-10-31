@@ -25,14 +25,18 @@ def main():
             continue
         print(f"Lokale Verbindung bestätigt, Protokoll {protocol}.")
         print("Verfügbare Datenpunkte:", ", ".join(sorted(dps, key=int)))
-        print("Zusatzfunktionen:")
+        print("Lokale Funktionen:")
         for dp, name in {
+            "1": "Ein/Aus",
+            "2": "PM2.5",
             "3": "Betriebsmodus",
             "7": "Kindersicherung",
             "101": "Signaltöne",
             "102": "PM10",
             "103": "Timer",
             "105": "Filterbetriebsstunden",
+            "104": "Filterrestlebensdauer",
+            "109": "Manuelle Lüfterleistung",
             "110": "Displayhelligkeit",
         }.items():
             print(f"  {name}: {'vorhanden' if dp in dps else 'nicht gemeldet'}")
