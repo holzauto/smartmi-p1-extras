@@ -1,35 +1,32 @@
 {
-  "title": "Smartmi P1 Extras",
+  "title": "Smartmi P1 Local",
   "config": {
     "step": {
       "user": {
-        "title": "Smartmi P1 Extras",
-        "description": "Connect directly to the P1 over your LAN. The local key is stored only in Home Assistant. Optionally select the existing Smartmi HomeKit device to suggest its area. Extras appear as a separate device.",
+        "title": "Smartmi P1 Local",
+        "description": "Standalone local control of the Smartmi P1. Activate the device once in Smart Life/Tuya and connect it to Wi-Fi, then enter its device ID and local key. HomeKit is not required. Operation uses the LAN without a cloud login.",
         "data": {
           "host": "Local IP address or hostname",
           "device_id": "Tuya device ID",
           "local_key": "Tuya local key",
-          "protocol_version": "Tuya protocol version",
-          "homekit_device": "Existing Smartmi HomeKit device (optional)"
+          "protocol_version": "Tuya protocol version"
         }
       },
       "reconfigure": {
-        "title": "Smartmi P1 Extras",
-        "description": "Connect directly to the P1 over your LAN. The local key is stored only in Home Assistant. Optionally select the existing Smartmi HomeKit device to suggest its area. Extras appear as a separate device.",
+        "title": "Smartmi P1 Local",
+        "description": "Standalone local control of the Smartmi P1. Activate the device once in Smart Life/Tuya and connect it to Wi-Fi, then enter its device ID and local key. HomeKit is not required. Operation uses the LAN without a cloud login.",
         "data": {
           "host": "Local IP address or hostname",
           "device_id": "Tuya device ID",
           "local_key": "Tuya local key",
-          "protocol_version": "Tuya protocol version",
-          "homekit_device": "Existing Smartmi HomeKit device (optional)"
+          "protocol_version": "Tuya protocol version"
         }
       }
     },
     "error": {
       "cannot_connect": "No valid local response. Check the IP, local key and protocol version; close Smart Life and other local Tuya clients.",
       "invalid_key": "The local key must be exactly 16 UTF-8 bytes.",
-      "invalid_device": "Select the existing Smartmi device from HomeKit Device.",
-      "unsupported_device": "The device does not report any known supplemental P1 datapoints.",
+      "unsupported_device": "The device does not report valid P1 power, mode and fan-level datapoints.",
       "missing_connection_data": "Enter a host and device ID."
     },
     "abort": {
@@ -75,6 +72,12 @@
       },
       "filter_hours": {
         "name": "Filter operating hours"
+      },
+      "pm25": {
+        "name": "PM2.5"
+      },
+      "filter_life": {
+        "name": "Filter life remaining"
       }
     },
     "switch": {
@@ -85,6 +88,21 @@
     "lock": {
       "child_lock": {
         "name": "Child lock"
+      }
+    },
+    "fan": {
+      "air_purifier": {
+        "state_attributes": {
+          "preset_mode": {
+            "name": "Preset mode",
+            "state": {
+              "auto": "Automatic",
+              "sleep": "Sleep",
+              "strong": "Maximum",
+              "manual": "Manual"
+            }
+          }
+        }
       }
     }
   }
