@@ -1,0 +1,21 @@
+# Manual Lovelace card: replace both fan IDs with your existing HomeKit entities.
+# Replace <...> with actual entity IDs from the new Extras device after installation.
+type: vertical-stack
+cards:
+  - type: entities
+    title: Luftreiniger
+    entities:
+      - entity: fan.smartmi_p1
+        name: Schlafzimmer · Smartmi P1
+      - entity: fan.vocolinc_vap1
+        name: Arbeitszimmer · VOCOlinc VAP1
+  - type: entities
+    title: Smartmi P1 · Zusatzfunktionen
+    entities:
+      - entity: <select_mode>
+      - entity: <sensor_pm10>
+      - entity: <select_timer>
+      - entity: <select_display>
+      - entity: <switch_sound>
+      - entity: <lock_child_lock>
+      - entity: <sensor_filter_hours>
